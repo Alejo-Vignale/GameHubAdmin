@@ -1,0 +1,110 @@
+import React, { useState, useEffect } from "react";
+import axios from "axios";
+import Sidebar from "./Sidebar";
+import { Link } from "react-router-dom";
+import "./EditGame.css"
+import { useParams } from "react-router-dom";
+
+const EditGamePage = () => {
+  const { gameId } = useParams(); 
+  const [game, setGame] = useState(null);
+
+  const [newGameName, setNewGameName] = useState("");
+  const [newGameDescription, setNewGameDescription] = useState("");
+  const [newGamePrice, setNewGamePrice] = useState(0);
+  const [newGameStock, setNewGameStock] = useState(0);
+
+  useEffect(() => {
+    
+    axios.get(`http://localhost:3000/games/${gameId}`).then((response) => {
+      const gameData = response.data;
+      setGame(gameData);
+      setNewGameName(gameData.name);
+      setNewGameDescription(gameData.description);
+      setNewGamePrice(gameData.price);
+      setNewGameStock(gameData.stock);
+    
+    });
+  }, [gameId]);
+
+  const handleSave = async () => {
+    try {
+      const updatedGameData = {
+        name: newGameName,
+        price: newGamePrice,
+        stock: newGameStock,
+      };
+
+   
+
+      axios.patch(
+        `http://localhost:3000/games/${gameId}/editgame`,
+        updatedGameData
+      );
+    } catch (error) {
+      console.error("Error updating game information:", error);
+    }
+  };
+
+  if (game === null) {
+    return <div>Loading...</div>;
+  }
+
+  return (
+    
+    <div className="container-center">
+      <div className="col-lg-2 col-md-3 col-sm-4 side_edit">
+            <Sidebar />
+          </div>
+      <div className="col-lg-10 col-md-9 col-sm-8 ">
+      <div className="edit_game">
+      <div className="title_edit"> 
+      <h2>Edit Game: {game.name}</h2>
+      <div>
+      </div>
+      <div className="content_edit">
+        <label>Game Name </label>
+        <input
+          type="text"
+          value={newGameName}
+          onChange={(e) => setNewGameName(e.target.value)}
+        />
+      </div>
+
+      <div className="content_edit">
+        <label>Price </label>
+        <input
+        className="input_price"
+          type="number"
+          value={newGamePrice}
+          onChange={(e) => setNewGamePrice(e.target.value)}
+        />
+      </div>
+      <div className="content_edit">
+        <label>Stock </label>
+        <input
+         className="input_stock"
+          type="number"
+          value={newGameStock}
+          onChange={(e) => setNewGameStock(e.target.value)}
+        />
+      </div>
+      <div className="save_game">
+      <Link
+      to="/products">
+      <svg xmlns="http://www.w3.org/2000/svg" width="30" height="30" fill="white" class="bi bi-arrow-return-left bg-dark rounded-circle m-1 p-1" viewBox="0 0 16 16">
+        <path fill-rule="evenodd" d="M14.5 1.5a.5.5 0 0 1 .5.5v4.8a2.5 2.5 0 0 1-2.5 2.5H2.707l3.347 3.346a.5.5 0 0 1-.708.708l-4.2-4.2a.5.5 0 0 1 0-.708l4-4a.5.5 0 1 1 .708.708L2.707 8.3H12.5A1.5 1.5 0 0 0 14 6.8V2a.5.5 0 0 1 .5-.5z"/>
+        </svg>
+    </Link>
+      <button className="save_button_game" type="button" onClick={handleSave}>
+        Save changes
+      </button>
+      </div>
+    </div>
+    </div>
+    </div>
+    </div>
+  );
+};
+
+export default EditGamePage;
